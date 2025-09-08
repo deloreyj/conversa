@@ -1,0 +1,42 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "conversa",
+	"account_id": "2e6386d59e393e0eaec7753cb017cdd7",
+	"main": "src/worker.tsx",
+	"compatibility_date": "2025-05-07",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SESSION_DURABLE_OBJECT",
+				"class_name": "SessionDurableObject"
+			}
+		]
+	},
+	"vars": {
+		"WEBAUTHN_APP_NAME": "conversa"
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"SessionDurableObject"
+			]
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "conversa",
+			"database_id": "bf32b909-98ed-4491-9920-188ce021821a"
+		}
+	]
+}
