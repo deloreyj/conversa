@@ -59,7 +59,7 @@ export function Home({ ctx }: RequestInfo) {
         
         <div className="text-center mt-8 space-y-2">
           <p className="text-sm text-gray-500">
-            👆 Tap to flip • <span className="text-red-600">←</span> Practice again • <span className="text-green-600">→</span> Mastered
+            <span className="text-red-600">←</span> Practice again • 👆 Tap to flip •  <span className="text-green-600">→</span> Mastered
           </p>
         </div>
       </div>

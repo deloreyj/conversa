@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { SwipeableFlashcard } from "./SwipeableFlashcard";
+import { useState, useEffect, useCallback } from "react";
+import { CardStack } from "./CardStack";
 import { useFlashcardDeck, FlashcardData } from "@/hooks/useFlashcardDeck";
 import { cn } from "@/lib/utils";
 
@@ -18,8 +18,7 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
   }, []);
 
   const {
-    currentCard,
-    totalCards,
+    deck,
     masteredCards,
     progress,
     handleCorrect,
@@ -27,6 +26,22 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
     resetDeck,
     isComplete,
   } = useFlashcardDeck({ cards });
+
+  const handleCardSwipeLeft = useCallback((cardId: string) => {
+    // Find the card and call handleIncorrect
+    const card = deck.find(c => c.id === cardId);
+    if (card) {
+      handleIncorrect();
+    }
+  }, [deck, handleIncorrect]);
+
+  const handleCardSwipeRight = useCallback((cardId: string) => {
+    // Find the card and call handleCorrect  
+    const card = deck.find(c => c.id === cardId);
+    if (card) {
+      handleCorrect();
+    }
+  }, [deck, handleCorrect]);
 
   // Don't render interactive content during SSR
   if (!isMounted) {
@@ -36,37 +51,6 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
           <div className="h-3 bg-gray-200 rounded-full mb-6"></div>
           <div className="h-64 bg-gray-200 rounded-2xl"></div>
         </div>
-      </div>
-    );
-  }
-
-  if (isComplete) {
-    return (
-      <div className={cn("text-center space-y-6", className)}>
-        <div className="p-8 bg-green-50 rounded-2xl border-2 border-green-200">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold text-green-800 mb-2">
-            Congratulations!
-          </h2>
-          <p className="text-green-700">
-            You've mastered all {totalCards} flashcards in this deck!
-          </p>
-        </div>
-        
-        <button
-          onClick={resetDeck}
-          className="px-8 py-4 bg-green-600 text-white rounded-full font-medium text-lg shadow-lg hover:bg-green-700 transition-colors"
-        >
-          Practice Again
-        </button>
-      </div>
-    );
-  }
-
-  if (!currentCard) {
-    return (
-      <div className={cn("text-center py-12", className)}>
-        <p className="text-gray-500">No flashcards available</p>
       </div>
     );
   }
@@ -83,24 +67,35 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
         </div>
       </div>
 
-      {/* Current Flashcard */}
-      <SwipeableFlashcard
-        card={currentCard}
-        onSwipeLeft={handleIncorrect}
-        onSwipeRight={handleCorrect}
-        className="relative"
+      {/* Card Stack */}
+      <CardStack
+        cards={deck}
+        onSwipeLeft={handleCardSwipeLeft}
+        onSwipeRight={handleCardSwipeRight}
+        className="mb-8"
       />
 
       {/* Reset Button */}
-      {masteredCards > 0 && (
+      {isComplete ? (
         <div className="text-center">
           <button
             onClick={resetDeck}
-            className="text-sm text-gray-500 hover:text-gray-700 underline"
+            className="px-8 py-4 bg-green-600 text-white rounded-full font-medium text-lg shadow-lg hover:bg-green-700 transition-colors"
           >
-            Reset deck to practice mastered cards
+            Practice Again
           </button>
         </div>
+      ) : (
+        masteredCards > 0 && (
+          <div className="text-center">
+            <button
+              onClick={resetDeck}
+              className="text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Reset deck to practice mastered cards
+            </button>
+          </div>
+        )
       )}
     </div>
   );

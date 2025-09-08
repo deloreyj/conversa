@@ -56,6 +56,7 @@ export function useFlashcardDeck({ cards: initialCards }: UseFlashcardDeckProps)
   }, [initialCards, removedCards]);
 
   return {
+    deck,
     currentCard,
     hasNextCard,
     totalCards,

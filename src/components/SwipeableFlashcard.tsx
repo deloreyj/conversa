@@ -66,24 +66,6 @@ export function SwipeableFlashcard({
           className="shadow-2xl"
         />
       </animated.div>
-
-      {/* Action Buttons (fallback for users who prefer tapping) */}
-      <div className="flex justify-center gap-4 mt-6">
-        <button
-          onClick={animateSwipeLeft}
-          disabled={isAnimating}
-          className="px-6 py-3 bg-red-600 text-white rounded-full font-medium shadow-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Practice Again
-        </button>
-        <button
-          onClick={animateSwipeRight}
-          disabled={isAnimating}
-          className="px-6 py-3 bg-green-600 text-white rounded-full font-medium shadow-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Mastered
-        </button>
-      </div>
     </div>
   );
 }
