@@ -69,6 +69,7 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
 
       {/* Card Stack */}
       <CardStack
+        key={deck[0]?.id || 'empty'} 
         cards={deck}
         onSwipeLeft={handleCardSwipeLeft}
         onSwipeRight={handleCardSwipeRight}

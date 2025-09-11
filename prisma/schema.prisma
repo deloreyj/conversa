@@ -41,3 +41,20 @@ model Credential {
   @@index([credentialId])
   @@index([userId])
 }
+
+model FlashcardPack {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  emoji            String
+  category         String   // "basics", "situations", "grammar"
+  difficulty       String   // "beginner", "intermediate", "advanced"  
+  estimatedMinutes Int
+  cards            String   // Stringified JSON array of FlashcardData
+  userId           String   // Either "all" or specific user ID
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+  @@index([category])
+}

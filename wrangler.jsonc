@@ -38,5 +38,8 @@
 			"database_name": "conversa",
 			"database_id": "bf32b909-98ed-4491-9920-188ce021821a"
 		}
-	]
+	],
+	"ai": {
+		"binding": "AI"
+	},
 }

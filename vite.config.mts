@@ -8,7 +8,6 @@ export default defineConfig({
     ssr: {},
   },
   server: {
-    allowedHosts: ['victorian-aspect-brutal-two.trycloudflare.com']
   },
   plugins: [
     cloudflare({
@@ -17,4 +16,10 @@ export default defineConfig({
     redwood(),
     tailwindcss(),
   ],
+  esbuild: {
+    keepNames: true
+  },
+  optimizeDeps: {
+    exclude: ['@simplewebauthn/server']
+  }
 });

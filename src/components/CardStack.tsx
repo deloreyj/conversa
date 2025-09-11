@@ -40,7 +40,7 @@ export function CardStack({ cards, onSwipeLeft, onSwipeRight, className }: CardS
         
         return (
           <DraggableFlashcard
-            key={`${card.id}-${index}`}
+            key={card.id}
             card={card}
             onSwipeLeft={() => onSwipeLeft(card.id)}
             onSwipeRight={() => onSwipeRight(card.id)}

@@ -24,30 +24,29 @@ export function useFlashcardDeck({ cards: initialCards }: UseFlashcardDeckProps)
   const progress = totalCards > 0 ? ((currentIndex + 1) / totalCards) * 100 : 0;
 
   const handleCorrect = useCallback(() => {
-    if (!currentCard) return;
+    if (deck.length === 0) return;
 
-    // Remove card from deck (user got it right)
-    const newDeck = deck.filter((_, index) => index !== currentIndex);
-    setRemovedCards(prev => [...prev, currentCard]);
-    setDeck(newDeck);
-
-    // Adjust current index if needed
-    if (currentIndex >= newDeck.length) {
-      setCurrentIndex(Math.max(0, newDeck.length - 1));
-    }
-  }, [currentCard, deck, currentIndex]);
+    const [topCard, ...remainingCards] = deck;
+    
+    // Remove top card from deck (user got it right)
+    setRemovedCards(prev => [...prev, topCard]);
+    setDeck(remainingCards);
+    
+    // Always reset to first card since we're shifting the array
+    setCurrentIndex(0);
+  }, [deck]);
 
   const handleIncorrect = useCallback(() => {
-    if (!currentCard) return;
+    if (deck.length === 0) return;
 
-    // Move to next card but keep this one in rotation
-    if (hasNextCard) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Cycle back to beginning
-      setCurrentIndex(0);
-    }
-  }, [currentCard, hasNextCard, currentIndex]);
+    const [topCard, ...remainingCards] = deck;
+    
+    // Move top card to back of deck (practice again)
+    setDeck([...remainingCards, topCard]);
+    
+    // Always reset to first card since we're shifting the array
+    setCurrentIndex(0);
+  }, [deck]);
 
   const resetDeck = useCallback(() => {
     setDeck([...initialCards, ...removedCards]);

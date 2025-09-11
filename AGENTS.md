@@ -36,3 +36,6 @@
 - Pass `ctx` through props for request context
 - Use middleware pattern in worker.tsx for request processing
 - Implement proper security headers and session handling
+
+## Rules
+- NEVER create db migrations manually. ALWAYS rely on scripts in package.json for db management

@@ -40,15 +40,14 @@ export function useCardDrag({ onSwipeLeft, onSwipeRight, disabled = false }: Use
           scale: 0.8,
           config: { tension: 200, friction: 20 },
           onResolve: () => {
-            // Trigger the callback after animation
-            if (isSwipeRight) {
-              onSwipeRight();
-            } else {
-              onSwipeLeft();
-            }
-            
-            // Reset position for next card (will be invisible until next card mounts)
-            api.set({ x: 0, y: 0, rotation: 0, scale: 1 });
+            // Trigger the callback immediately after starting animation
+            setTimeout(() => {
+              if (isSwipeRight) {
+                onSwipeRight();
+              } else {
+                onSwipeLeft();
+              }
+            }, 100); // Small delay to let animation start
           },
         });
       } else if (active) {
