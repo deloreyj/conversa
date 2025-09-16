@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FlashcardDeck } from "./FlashcardDeck";
 import { PackModal } from "./PackModal";
+import { GeneratePackDrawer } from "./GeneratePackDrawer";
 import { FlashcardPackMetadata } from "@/app/pages/flashcard-functions";
 import { FlashcardData } from "@/hooks/useFlashcardDeck";
 
@@ -21,6 +22,7 @@ export function FlashcardAppClient({
 }: FlashcardAppClientProps) {
   const [currentPackId, setCurrentPackId] = useState(initialPackId);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGenerateDrawerOpen, setIsGenerateDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [cards, setCards] = useState<FlashcardData[]>(initialCards);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +48,13 @@ export function FlashcardAppClient({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePackGenerated = async (packId: string) => {
+    // When a new pack is generated, we could automatically switch to it
+    // For now, just close the drawer - user can manually select it from Change Pack
+    console.log("New pack generated with ID:", packId);
+    setIsGenerateDrawerOpen(false);
   };
 
   if (!isMounted) {
@@ -78,15 +87,22 @@ export function FlashcardAppClient({
         </div>
       </div>
 
-      {/* Bottom CTA - Change Pack Button */}
+      {/* Bottom CTA - Action Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto space-y-3">
             <button 
               onClick={() => setIsModalOpen(true)}
               className="w-full py-4 px-6 bg-green-600 text-white rounded-2xl font-semibold text-lg shadow-lg hover:bg-green-700 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading}
             >
               📚 Change Pack
+            </button>
+            
+            <button 
+              onClick={() => setIsGenerateDrawerOpen(true)}
+              className="w-full py-3 px-6 bg-blue-600 text-white rounded-2xl font-medium text-base shadow-lg hover:bg-blue-700 transition-colors active:scale-95"
+            >
+              🤖 Generate Pack
             </button>
         </div>
       </div>
@@ -98,6 +114,13 @@ export function FlashcardAppClient({
         onPackSelect={handlePackSelect}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      {/* Generate Pack Drawer */}
+      <GeneratePackDrawer
+        isOpen={isGenerateDrawerOpen}
+        onClose={() => setIsGenerateDrawerOpen(false)}
+        onPackGenerated={handlePackGenerated}
       />
     </>
   );

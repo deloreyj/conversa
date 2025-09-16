@@ -1,5 +1,6 @@
 import { RequestInfo } from "rwsdk/worker";
 import { FlashcardAppClient } from "@/components/FlashcardAppClient";
+import { EmptyPackState } from "@/components/EmptyPackState";
 import { getFlashcardPacksMetadata, getFlashcardPackById, fetchPackCards } from "@/app/pages/flashcard-functions";
 
 export async function Home({ ctx }: RequestInfo) {
@@ -27,22 +28,20 @@ export async function Home({ ctx }: RequestInfo) {
               Welcome back, {ctx.user.username}!
             </p>
           )}
-
-          {/* Client-side app content */}
-          {packs.length > 0 ? (
-            <FlashcardAppClient
-              packs={packs}
-              initialCards={initialCards || []}
-              initialPackId={initialPackId}
-              onPackSelect={fetchPackCards}
-            />
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No flashcard packs available</p>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Client-side app content */}
+      {packs.length > 0 ? (
+        <FlashcardAppClient
+          packs={packs}
+          initialCards={initialCards || []}
+          initialPackId={initialPackId}
+          onPackSelect={fetchPackCards}
+        />
+      ) : (
+        <EmptyPackState />
+      )}
     </div>
   );
 }

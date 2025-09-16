@@ -89,30 +89,33 @@ export function Flashcard({ english, portuguese, phonetic, className }: Flashcar
             <p className="text-2xl font-semibold text-gray-800 mb-2">{portuguese}</p>
             <p className="text-lg text-gray-600 mb-4 italic">/{phonetic}/</p>
             
-            <button
-              onClick={handlePlayAudio}
-              disabled={isLoadingAudio}
-              className={cn(
-                "mb-3 px-4 py-2 rounded-full bg-white border border-green-300 shadow-sm",
-                "hover:shadow-md hover:bg-green-50 transition-all duration-200",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                "flex items-center gap-2 mx-auto"
-              )}
-            >
-              {isLoadingAudio ? (
-                <>
-                  <span className="inline-block w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm">Loading...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                  <span className="text-sm">Play</span>
-                </>
-              )}
-            </button>
+{/* Audio button hidden until implementation is complete */}
+            {false && (
+              <button
+                onClick={handlePlayAudio}
+                disabled={isLoadingAudio}
+                className={cn(
+                  "mb-3 px-4 py-2 rounded-full bg-white border border-green-300 shadow-sm",
+                  "hover:shadow-md hover:bg-green-50 transition-all duration-200",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "flex items-center gap-2 mx-auto"
+                )}
+              >
+                {isLoadingAudio ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm">Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <span className="text-sm">Play</span>
+                  </>
+                )}
+              </button>
+            )}
             
             <p className="text-sm text-gray-500 uppercase tracking-wide">🇵🇹</p>
           </div>

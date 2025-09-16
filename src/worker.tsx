@@ -9,6 +9,7 @@ import { Session } from "./session/durableObject";
 import { type User, db, setupDb } from "@/db";
 import { env } from "cloudflare:workers";
 export { SessionDurableObject } from "./session/durableObject";
+export { FlashcardPackGenerator } from "./workflows/flashcard-pack-generator";
 
 export type AppContext = {
   session: Session | null;

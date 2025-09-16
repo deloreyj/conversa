@@ -22,7 +22,8 @@
 		]
 	},
 	"vars": {
-		"WEBAUTHN_APP_NAME": "conversa"
+		"WEBAUTHN_APP_NAME": "conversa",
+		"AI_GATEWAY_ID": "conversa",
 	},
 	"migrations": [
 		{
@@ -42,4 +43,11 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"workflows": [
+		{
+			"name": "flashcard-pack-generator",
+			"binding": "FLASHCARD_PACK_GENERATOR",
+			"class_name": "FlashcardPackGenerator"
+		}
+	]
 }

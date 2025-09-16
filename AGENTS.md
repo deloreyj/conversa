@@ -39,3 +39,4 @@
 
 ## Rules
 - NEVER create db migrations manually. ALWAYS rely on scripts in package.json for db management
+- ALWAYS use pnpm for package management. Do not use `npm` and defintely don't use `yarn`
