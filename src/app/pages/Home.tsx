@@ -19,15 +19,9 @@ export async function Home({ ctx }: RequestInfo) {
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
             Conversa
           </h1>
-          <p className="text-gray-600 mb-2">
-            Learn Portuguese (Portugal) with flashcards
+          <p className="text-gray-600">
+            Learn the Portuguese (Portugal) you'll actually use
           </p>
-          
-          {ctx.user?.username && (
-            <p className="text-sm text-gray-500 mb-4">
-              Welcome back, {ctx.user.username}!
-            </p>
-          )}
         </div>
       </div>
 

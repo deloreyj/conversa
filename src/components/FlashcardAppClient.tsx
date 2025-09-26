@@ -62,15 +62,24 @@ export function FlashcardAppClient({
   }
 
   return (
-    <>
+    <div className="p-2 flex-col">
       {/* Current pack indicator */}
       {currentPack && (
-        <div className="inline-flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm mb-4">
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm mb-4 justify-between">
+          <div className="flex gap-2">
           <span className="text-lg">{currentPack.emoji}</span>
           <span className="font-medium text-gray-700">{currentPack.title}</span>
           {isLoading && (
             <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
           )}
+          </div>
+          <div>
+            <a
+              href={`/manage/${currentPackId}`}
+            >
+              ⚙️
+            </a>
+          </div>
         </div>
       )}
 
@@ -98,7 +107,7 @@ export function FlashcardAppClient({
               📚 Change Pack
             </button>
             
-            <button 
+            <button
               onClick={() => setIsGenerateDrawerOpen(true)}
               className="w-full py-3 px-6 bg-blue-600 text-white rounded-2xl font-medium text-base shadow-lg hover:bg-blue-700 transition-colors active:scale-95"
             >
@@ -122,6 +131,6 @@ export function FlashcardAppClient({
         onClose={() => setIsGenerateDrawerOpen(false)}
         onPackGenerated={handlePackGenerated}
       />
-    </>
+    </div>
   );
 }

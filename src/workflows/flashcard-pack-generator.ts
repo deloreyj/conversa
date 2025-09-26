@@ -42,27 +42,251 @@ const FlashcardPackSchema = z.object({
 
 // Workflow event parameters
 type FlashcardPackGenerationParams = {
-  userPrompt: string;
+  userPrompt?: string;
   userId?: string; // Optional - defaults to "all"
-};
-
-// Environment bindings
-type Env = {
-  DB: D1Database;
-  AI: Ai;
-  FLASHCARD_PACK_GENERATOR: Workflow;
-  AI_GATEWAY_TOKEN: string;
-  AI_GATEWAY_ID: string;
-  OPENAI_API_KEY: string;
+  // For adding cards to existing pack
+  packId?: string;
+  additionalCards?: number;
+  existingCards?: Array<{ portuguese: string; english: string; phonetic: string; }>;
+  customPrompt?: string; // Custom prompt for additional cards
+  packDetails?: {
+    title: string;
+    description: string;
+    category: string;
+    difficulty: string;
+  };
 };
 
 export class FlashcardPackGenerator extends WorkflowEntrypoint<Env, FlashcardPackGenerationParams> {
   async run(event: WorkflowEvent<FlashcardPackGenerationParams>, step: WorkflowStep) {
     console.log("🚀 FlashcardPackGenerator workflow started");
-    console.log("📥 Input params:", { userPrompt: event.payload.userPrompt, userId: event.payload.userId });
-    
-    const { userPrompt, userId = "all" } = event.payload;
+    console.log("📥 Input params:", event.payload);
 
+    // Determine workflow mode in a step to ensure state persistence
+    const workflowMode = await step.do("determine workflow mode", async () => {
+      const { userPrompt, packId, additionalCards, existingCards, packDetails } = event.payload;
+
+      if (packId && additionalCards && existingCards && packDetails) {
+        return { mode: "additional", packId, existingCards, packDetails, customPrompt: event.payload.customPrompt };
+      } else if (userPrompt) {
+        return { mode: "new", userPrompt, userId: event.payload.userId || "all" };
+      } else {
+        throw new Error("Either userPrompt or packId with additional card parameters must be provided");
+      }
+    });
+
+    if (workflowMode.mode === "additional") {
+      return await this.generateAdditionalCards(
+        step,
+        workflowMode.packId,
+        workflowMode.existingCards,
+        workflowMode.packDetails,
+        workflowMode.customPrompt
+      );
+    } else {
+      return await this.generateNewPack(step, workflowMode.userPrompt, workflowMode.userId);
+    }
+  }
+
+  private async generateAdditionalCards(
+    step: WorkflowStep,
+    packId: string,
+    existingCards: Array<{ portuguese: string; english: string; phonetic: string; }>,
+    packDetails: { title: string; description: string; category: string; difficulty: string; },
+    customPrompt?: string
+  ) {
+    console.log(`🔄 Generating additional cards for pack: ${packDetails.title}`);
+
+    // Step 1: Generate additional cards via OpenAI
+    const additionalCardsGenerated = await step.do("generate additional cards via openai",
+      {
+        retries: {
+          limit: 5,
+          delay: '10 seconds',
+          backoff: 'exponential'
+        },
+        timeout: '60 seconds'
+      },
+      async () => {
+        console.log("🤖 Calling OpenAI for additional card generation...");
+
+        // Prepare existing cards context
+        const existingCardsList = existingCards
+          .map(card => `- ${card.portuguese} / ${card.english} (${card.phonetic})`)
+          .join('\n');
+
+        // Build system prompt
+        const systemPrompt = `You are an expert Portuguese (Portugal) language teacher creating additional flashcards for an existing pack.
+
+IMPORTANT INSTRUCTIONS:
+- Create an appropriate number of new flashcards (typically 5-15) that complement the existing cards based on the user's request
+- Do NOT duplicate any existing content
+- Follow the same theme, difficulty, and style as the existing pack
+- Each card should have: portuguese (Portugal Portuguese), english, and phonetic (pronunciation guide for American English speakers)
+- Use European Portuguese spelling and vocabulary
+- Return ONLY a valid JSON object with a "cards" array
+
+Existing pack details:
+- Title: ${packDetails.title}
+- Description: ${packDetails.description}
+- Category: ${packDetails.category}
+- Difficulty: ${packDetails.difficulty}
+
+Existing cards (DO NOT DUPLICATE):
+${existingCardsList}
+
+Return format:
+{
+  "cards": [
+    {
+      "portuguese": "example word/phrase",
+      "english": "english translation",
+      "phonetic": "pronunciation guide"
+    }
+  ]
+}`;
+
+        // Build user prompt
+        const userPrompt = customPrompt
+          ? `Generate new flashcards for this existing pack based on the following request: "${customPrompt}". Create an appropriate number of cards for this topic (typically 5-15). Ensure they complement but don't duplicate the existing content.`
+          : `Generate an appropriate number of new flashcards (typically 5-15) for this existing pack, ensuring they complement but don't duplicate the existing content.`;
+
+        // Get AI Gateway URL and make the call
+        const gateway = this.env.AI.gateway(this.env.AI_GATEWAY_ID);
+        const openaiUrl = await gateway.getUrl("openai");
+
+        const response = await fetch(`${openaiUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'cf-aig-authorization': `Bearer ${this.env.AI_GATEWAY_TOKEN}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 2000
+          })
+        });
+
+        if (!response.ok) {
+          console.error("❌ OpenAI API call failed:", response.status, response.statusText);
+          throw new Error(`OpenAI API call failed: ${response.status}`);
+        }
+
+        return await response.json() as OpenAIResponse;
+      }
+    );
+
+    // Step 2: Parse OpenAI response
+    const parsedCards = await step.do("parse openai response", async () => {
+      console.log("✅ OpenAI response received for additional cards");
+
+      if (!additionalCardsGenerated) {
+        throw new Error("No response received from OpenAI");
+      }
+
+      const content = additionalCardsGenerated.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new Error("No content received from OpenAI");
+      }
+
+      try {
+        // Clean up the response - sometimes LLMs add markdown code blocks
+        let cleanContent = content.trim();
+
+        // Remove markdown code blocks if present
+        if (cleanContent.startsWith('```json') && cleanContent.endsWith('```')) {
+          cleanContent = cleanContent.slice(7, -3).trim();
+        } else if (cleanContent.startsWith('```') && cleanContent.endsWith('```')) {
+          cleanContent = cleanContent.slice(3, -3).trim();
+        }
+
+        const parsed = JSON.parse(cleanContent);
+        console.log("✅ Successfully parsed additional cards:", parsed);
+        return parsed.cards as Array<{ portuguese: string; english: string; phonetic: string; }>;
+      } catch (error) {
+        console.error("❌ Failed to parse additional cards JSON:", error);
+        console.error("Raw content:", content);
+        throw new Error("Failed to parse additional cards JSON response");
+      }
+    });
+
+    // Step 3: Add unique IDs to new cards
+    const cardsWithIds = await step.do("add ids to new cards", async () => {
+      const timestamp = Date.now();
+      return parsedCards.map((card: any, index: number) => ({
+        ...card,
+        id: `card_${timestamp}_${index}`
+      }));
+    });
+
+    // Step 4: Prepare existing cards with IDs
+    const existingWithIds = await step.do("prepare existing cards with ids", async () => {
+      return existingCards.map((card: any, index: number) => ({
+        ...card,
+        id: card.id || `existing_${index}`
+      }));
+    });
+
+    // Step 5: Merge all cards
+    const allCards = await step.do("merge all cards", async () => {
+      return [...existingWithIds, ...cardsWithIds];
+    });
+
+    // Step 6: Update pack in database
+    const updateResult = await step.do("update pack in database",
+      {
+        retries: {
+          limit: 3,
+          delay: '5 seconds',
+          backoff: 'constant'
+        },
+        timeout: '30 seconds'
+      },
+      async () => {
+        const db = new PrismaClient({
+          // @ts-ignore
+          adapter: new PrismaD1(this.env.DB),
+        });
+
+        try {
+          await db.flashcardPack.update({
+            where: { id: packId },
+            data: {
+              cards: JSON.stringify(allCards)
+            }
+          });
+
+          console.log("✅ Successfully updated pack with additional cards");
+          return {
+            success: true,
+            packId,
+            newCardCount: cardsWithIds.length,
+            totalCards: allCards.length
+          };
+        } catch (error) {
+          console.error("❌ Failed to update pack in database:", error);
+          throw new Error("Failed to update pack in database");
+        } finally {
+          await db.$disconnect();
+        }
+      }
+    );
+
+    console.log("🎉 Additional cards generation workflow completed successfully!");
+    return {
+      success: updateResult.success,
+      packId: updateResult.packId,
+      additionalCardsAdded: updateResult.newCardCount,
+      totalCards: updateResult.totalCards
+    };
+  }
+
+  private async generateNewPack(step: WorkflowStep, userPrompt: string, userId: string) {
     // Step 1: Enhance the user prompt for better LLM understanding
     console.log("⚡ Starting Step 1: Enhance user prompt");
     const enhancedPrompt = await step.do("enhance user prompt", async () => {

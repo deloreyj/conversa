@@ -23,16 +23,9 @@ export interface FlashcardPackWithCards extends FlashcardPackMetadata {
 }
 
 export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata[]> {
-  const { request } = requestInfo;
-  const session = await sessions.load(request);
-  const userId = session?.userId;
-
   const packs = await db.flashcardPack.findMany({
     where: {
-      OR: [
-        { userId: "all" },
-        ...(userId ? [{ userId }] : [])
-      ]
+      userId: "all" // For now, only show global packs
     },
     select: {
       id: true,
@@ -61,17 +54,10 @@ export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata
 }
 
 export async function getFlashcardPackById(id: string): Promise<FlashcardData[] | null> {
-  const { request } = requestInfo;
-  const session = await sessions.load(request);
-  const userId = session?.userId;
-
   const pack = await db.flashcardPack.findFirst({
     where: {
       id,
-      OR: [
-        { userId: "all" },
-        ...(userId ? [{ userId }] : [])
-      ]
+      userId: "all" // For now, only show global packs
     },
     select: {
       cards: true

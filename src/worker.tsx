@@ -2,6 +2,7 @@ import { defineApp, ErrorResponse } from "rwsdk/worker";
 import { route, render, prefix } from "rwsdk/router";
 import { Document } from "@/app/Document";
 import { Home } from "@/app/pages/Home";
+import { PackManagement } from "@/app/pages/manage/PackManagement";
 import { setCommonHeaders } from "@/app/headers";
 import { userRoutes } from "@/app/pages/user/routes";
 import { sessions, setupSessionStore } from "./session/store";
@@ -22,43 +23,18 @@ export default defineApp([
     await setupDb(env);
     setupSessionStore(env);
 
-    try {
-      ctx.session = await sessions.load(request);
-    } catch (error) {
-      if (error instanceof ErrorResponse && error.code === 401) {
-        await sessions.remove(request, headers);
-        headers.set("Location", "/user/login");
-
-        return new Response(null, {
-          status: 302,
-          headers,
-        });
-      }
-
-      throw error;
-    }
-
-    if (ctx.session?.userId) {
-      ctx.user = await db.user.findUnique({
-        where: {
-          id: ctx.session.userId,
-        },
-      });
-    }
+    // For now, set a default user context (no authentication)
+    ctx.session = null;
+    ctx.user = {
+      id: "dev-user",
+      username: "dev-user",
+      createdAt: new Date()
+    };
   },
   render(Document, [
     route("/", Home),
-    route("/protected", [
-      ({ ctx }) => {
-        if (!ctx.user) {
-          return new Response(null, {
-            status: 302,
-            headers: { Location: "/user/login" },
-          });
-        }
-      },
-      () => <div className="p-4">Protected content - you are logged in!</div>,
-    ]),
+    route("/manage/:packId", (req) => <PackManagement packId={req.params.packId} {...req} />),
+    route("/protected", () => <div className="p-4">Protected content - you are logged in!</div>),
     prefix("/user", userRoutes),
   ]),
 ]);
