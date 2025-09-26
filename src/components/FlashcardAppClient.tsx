@@ -85,14 +85,12 @@ export function FlashcardAppClient({
 
       {/* Flashcard area */}
       <div className="flex-1 px-4 pb-20"> {/* Bottom padding for CTA button */}
-        <div className="max-w-md mx-auto">
-          <FlashcardDeck key={currentPackId} cards={cards} />
-          
-          <div className="text-center mt-8 space-y-2">
-            <p className="text-sm text-gray-500">
-              <span className="text-red-600">←</span> Practice again • 👆 Tap to flip • <span className="text-green-600">→</span> Mastered
-            </p>
-          </div>
+        <FlashcardDeck key={currentPackId} cards={cards} />
+
+        <div className="text-center mt-8 space-y-2">
+          <p className="text-sm text-gray-500">
+            <span className="text-red-600">←</span> Practice again • 👆 Tap to flip • <span className="text-green-600">→</span> Mastered
+          </p>
         </div>
       </div>
 

@@ -26,16 +26,18 @@ export async function Home({ ctx }: RequestInfo) {
       </div>
 
       {/* Client-side app content */}
-      {packs.length > 0 ? (
-        <FlashcardAppClient
-          packs={packs}
-          initialCards={initialCards || []}
-          initialPackId={initialPackId}
-          onPackSelect={fetchPackCards}
-        />
-      ) : (
-        <EmptyPackState />
-      )}
+      <div className="max-w-md mx-auto w-full">
+        {packs.length > 0 ? (
+          <FlashcardAppClient
+            packs={packs}
+            initialCards={initialCards || []}
+            initialPackId={initialPackId}
+            onPackSelect={fetchPackCards}
+          />
+        ) : (
+          <EmptyPackState />
+        )}
+      </div>
     </div>
   );
 }
