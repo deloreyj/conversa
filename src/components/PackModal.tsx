@@ -29,9 +29,9 @@ export function PackModal({
 }: PackModalProps) {
   const getDifficultyColor = (difficulty: FlashcardPackMetadata['difficulty']) => {
     switch (difficulty) {
-      case 'beginner': return 'text-green-600 bg-green-50';
-      case 'intermediate': return 'text-orange-600 bg-orange-50';
-      case 'advanced': return 'text-red-600 bg-red-50';
+      case 'beginner': return 'text-[var(--color-portugal-green)] bg-green-50';
+      case 'intermediate': return 'text-[var(--color-tram-yellow-dark)] bg-yellow-50';
+      case 'advanced': return 'text-[var(--color-portugal-red)] bg-red-50';
     }
   };
 
@@ -64,7 +64,7 @@ export function PackModal({
                       "w-full p-4 rounded-xl text-left transition-all duration-200",
                       "border-2 hover:scale-[1.02] active:scale-[0.98]",
                       isSelected
-                        ? "border-green-600 bg-green-50 shadow-md"
+                        ? "border-[var(--color-portugal-green)] bg-green-50 shadow-md"
                         : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
                     )}
                   >
@@ -72,7 +72,7 @@ export function PackModal({
                       <div className="flex-shrink-0 relative">
                         <span className="text-3xl">{pack.emoji}</span>
                         {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[var(--color-portugal-green)] rounded-full flex items-center justify-center">
                             <span className="text-white text-xs">✓</span>
                           </div>
                         )}

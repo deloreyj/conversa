@@ -62,29 +62,31 @@ export function FlashcardAppClient({
   }
 
   return (
-    <div className="p-2 flex-col">
+    <div className="flex flex-col">
       {/* Current pack indicator */}
       {currentPack && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow-sm mb-4 justify-between">
-          <div className="flex gap-2">
-          <span className="text-lg">{currentPack.emoji}</span>
-          <span className="font-medium text-gray-700">{currentPack.title}</span>
-          {isLoading && (
-            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-          )}
-          </div>
-          <div>
-            <a
-              href={`/manage/${currentPackId}`}
-            >
-              ⚙️
-            </a>
+        <div className="px-2 pt-2">
+          <div className="flex items-center gap-2 px-3 py-2 bg-[var(--color-tram-yellow)] rounded-full shadow-sm justify-between">
+            <div className="flex items-center gap-2">
+            <span className="text-lg">{currentPack.emoji}</span>
+            <span className="font-medium text-gray-900">{currentPack.title}</span>
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+            )}
+            </div>
+            <div>
+              <a
+                href={`/manage/${currentPackId}`}
+              >
+                ⚙️
+              </a>
+            </div>
           </div>
         </div>
       )}
 
       {/* Flashcard area */}
-      <div className="flex-1 px-4 pb-20"> {/* Bottom padding for CTA button */}
+      <div className="px-4 py-4">
         <FlashcardDeck key={currentPackId} cards={cards} />
 
         <div className="text-center mt-8 space-y-2">
@@ -95,21 +97,21 @@ export function FlashcardAppClient({
       </div>
 
       {/* Bottom CTA - Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent">
-        <div className="max-w-md mx-auto space-y-3">
-            <button 
+      <div className="p-4 pb-safe">
+        <div className="max-w-md mx-auto flex gap-3">
+            <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full py-4 px-6 bg-green-600 text-white rounded-2xl font-semibold text-lg shadow-lg hover:bg-green-700 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 px-6 bg-[var(--color-limestone)] text-gray-900 border border-gray-300 rounded-2xl font-medium text-base shadow-lg hover:bg-gray-200 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading}
             >
-              📚 Change Pack
+              Change pack
             </button>
-            
+
             <button
               onClick={() => setIsGenerateDrawerOpen(true)}
-              className="w-full py-3 px-6 bg-blue-600 text-white rounded-2xl font-medium text-base shadow-lg hover:bg-blue-700 transition-colors active:scale-95"
+              className="flex-1 py-3 px-6 bg-[var(--color-azulejos)] text-white rounded-2xl font-medium text-base shadow-lg hover:bg-[var(--color-azulejos-dark)] transition-colors active:scale-95"
             >
-              🤖 Generate Pack
+              Generate pack
             </button>
         </div>
       </div>

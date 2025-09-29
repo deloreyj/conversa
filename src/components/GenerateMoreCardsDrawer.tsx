@@ -44,7 +44,7 @@ export function GenerateMoreCardsDrawer({
   };
 
   return (
-    <Drawer.Root open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Drawer.Root open={isOpen} onOpenChange={(open) => !open && handleClose()} repositionInputs={false}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-40" />
         <Drawer.Content className="bg-white flex flex-col rounded-t-[20px] mt-24 fixed bottom-0 left-0 right-0 z-50">
@@ -61,13 +61,6 @@ export function GenerateMoreCardsDrawer({
                 >
                   <X size={20} />
                 </button>
-              </div>
-
-              <div className="mb-6">
-                <p className="text-gray-600 mb-2">
-                  Adding cards to: <span className="font-medium">{packTitle}</span>
-                </p>
-                <p className="text-sm text-gray-500">{packDescription}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -90,22 +83,11 @@ export function GenerateMoreCardsDrawer({
                 <button
                   type="submit"
                   disabled={isGenerating || !prompt.trim()}
-                  className="w-full py-4 px-6 bg-green-600 text-white rounded-2xl font-semibold text-lg shadow-lg hover:bg-green-700 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 px-6 bg-[var(--color-azulejos)] text-white rounded-lg font-medium text-base shadow-lg hover:bg-[var(--color-azulejos-dark)] transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Wand2 size={20} />
-                  {isGenerating ? "Generating..." : "Generate Cards"}
+                  {isGenerating ? "Generating..." : "Generate cards"}
                 </button>
               </form>
-
-              <div className="mt-6 p-4 bg-gray-50 rounded-2xl">
-                <h3 className="font-medium text-gray-800 mb-2">💡 Tips for better results:</h3>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Be specific about the context or situation</li>
-                  <li>• The AI will create an appropriate number of cards (typically 5-15) based on your request</li>
-                  <li>• Mention the difficulty level if different from the pack</li>
-                  <li>• Include any specific vocabulary themes</li>
-                </ul>
-              </div>
             </div>
           </div>
         </Drawer.Content>

@@ -61,7 +61,7 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
       <div className="mb-8">
         <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <div
-            className="h-full bg-green-600 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-[var(--color-portugal-green)] rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -81,9 +81,9 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
         <div className="text-center">
           <button
             onClick={resetDeck}
-            className="px-8 py-4 bg-green-600 text-white rounded-full font-medium text-lg shadow-lg hover:bg-green-700 transition-colors"
+            className="px-8 py-4 bg-[var(--color-portugal-green)] text-white rounded-full font-medium text-lg shadow-lg hover:bg-[var(--color-portugal-green-dark)] transition-colors"
           >
-            Practice Again
+            Practice again
           </button>
         </div>
       ) : (
@@ -93,7 +93,7 @@ export function FlashcardDeck({ cards, className }: FlashcardDeckProps) {
               onClick={resetDeck}
               className="text-sm text-gray-500 hover:text-gray-700 underline"
             >
-              Reset deck to practice mastered cards
+              Reset deck
             </button>
           </div>
         )

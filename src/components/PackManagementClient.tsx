@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { FlashcardPackWithCards } from "@/app/pages/flashcard-functions";
 import { FlashcardData } from "@/hooks/useFlashcardDeck";
-import { updateFlashcardPack, deleteFlashcard, updateFlashcard, generateMoreCards } from "@/app/pages/manage/functions";
+import { updateFlashcardPack, deleteFlashcard, updateFlashcard, generateMoreCards, deleteFlashcardPack } from "@/app/pages/manage/functions";
 import { Trash2, Edit3, Plus, Save, X, Wand2 } from "lucide-react";
 import { GenerateMoreCardsDrawer } from "./GenerateMoreCardsDrawer";
+import {
+  Drawer,
+  DrawerContent,
+} from "@/components/ui/drawer";
 
 interface PackManagementClientProps {
   pack: FlashcardPackWithCards;
@@ -114,6 +118,23 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
     }
   };
 
+  const handleDeletePack = async () => {
+    if (!confirm(`Are you sure you want to delete the entire pack "${pack.title}"? This cannot be undone.`)) return;
+
+    try {
+      const success = await deleteFlashcardPack(pack.id);
+      if (success) {
+        alert("Pack deleted successfully");
+        window.location.href = "/";
+      } else {
+        alert("Failed to delete pack");
+      }
+    } catch (error) {
+      alert("Error deleting pack");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -126,124 +147,43 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
             >
               ← Back to Flashcards
             </button>
-            <button
-              onClick={() => setEditingPack(!editingPack)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
-            >
-              <Edit3 size={16} />
-              {editingPack ? "Cancel" : "Edit Pack"}
-            </button>
           </div>
 
-          {editingPack ? (
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input
-                    type="text"
-                    value={packForm.title}
-                    onChange={(e) => setPackForm(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Emoji</label>
-                  <input
-                    type="text"
-                    value={packForm.emoji}
-                    onChange={(e) => setPackForm(prev => ({ ...prev, emoji: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                    maxLength={2}
-                  />
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={packForm.description}
-                  onChange={(e) => setPackForm(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select
-                    value={packForm.category}
-                    onChange={(e) => setPackForm(prev => ({ ...prev, category: e.target.value as any }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  >
-                    <option value="basics">Basics</option>
-                    <option value="situations">Situations</option>
-                    <option value="grammar">Grammar</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
-                  <select
-                    value={packForm.difficulty}
-                    onChange={(e) => setPackForm(prev => ({ ...prev, difficulty: e.target.value as any }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  >
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Minutes</label>
-                  <input
-                    type="number"
-                    value={packForm.estimatedMinutes}
-                    onChange={(e) => setPackForm(prev => ({ ...prev, estimatedMinutes: parseInt(e.target.value) || 0 }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                    min="1"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSavePack}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700"
-                >
-                  <Save size={16} />
-                  Save Changes
-                </button>
-                <button
-                  onClick={() => setEditingPack(false)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
-                >
-                  <X size={16} />
-                  Cancel
-                </button>
-              </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              {pack.emoji} {pack.title}
+            </h1>
+            <p className="text-gray-600 mb-4">{pack.description}</p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+              <span className="capitalize">{pack.category}</span>
+              <span className="capitalize">{pack.difficulty}</span>
+              <span>{pack.estimatedMinutes} minutes</span>
+              <span>{pack.cards.length} cards</span>
             </div>
-          ) : (
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                {pack.emoji} {pack.title}
-              </h1>
-              <p className="text-gray-600 mb-4">{pack.description}</p>
-              <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
-                <span className="capitalize">{pack.category}</span>
-                <span className="capitalize">{pack.difficulty}</span>
-                <span>{pack.estimatedMinutes} minutes</span>
-                <span>{pack.cards.length} cards</span>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-6 flex flex-col gap-3 max-w-md mx-auto">
+          <div className="flex gap-3">
+            <button
+              onClick={() => setEditingPack(true)}
+              className="flex-1 px-6 py-3 bg-[var(--color-limestone)] text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-200 shadow-md transition-all font-medium"
+            >
+              Edit pack
+            </button>
+            <button
+              onClick={handleDeletePack}
+              className="flex-1 px-6 py-3 bg-[var(--color-portugal-red-dark)] text-white rounded-xl hover:bg-[var(--color-portugal-red-dark)] shadow-md transition-all font-medium"
+            >
+              Delete pack
+            </button>
+          </div>
           <button
             onClick={() => setIsGenerateDrawerOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 shadow-lg"
+            className="w-full px-6 py-3 bg-[var(--color-azulejos)] text-white rounded-xl hover:bg-[var(--color-azulejos-dark)] shadow-md transition-all font-medium"
           >
-            <Wand2 size={18} />
-            Generate More Cards
+            Generate more cards
           </button>
         </div>
 
@@ -285,14 +225,14 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveCard}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700"
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--color-portugal-green)] text-white rounded-full hover:bg-[var(--color-portugal-green-dark)]"
                     >
                       <Save size={16} />
                       Save
                     </button>
                     <button
                       onClick={() => setEditingCard(null)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--color-limestone)] text-gray-700 border border-gray-300 rounded-full hover:bg-gray-200"
                     >
                       <X size={16} />
                       Cancel
@@ -301,21 +241,10 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
                 </div>
               ) : (
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <h3 className="font-medium text-gray-900 mb-1">English</h3>
-                        <p className="text-gray-700">{card.english}</p>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900 mb-1">Portuguese</h3>
-                        <p className="text-gray-700">{card.portuguese}</p>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900 mb-1">Phonetic</h3>
-                        <p className="text-gray-700 font-mono text-sm">{card.phonetic}</p>
-                      </div>
-                    </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="text-gray-900">🇺🇸 {card.english}</div>
+                    <div className="text-gray-700">🇵🇹 {card.portuguese}</div>
+                    <div className="text-gray-500 text-sm font-mono">🗣️ {card.phonetic}</div>
                   </div>
                   <div className="flex gap-2 ml-4">
                     <button
@@ -343,10 +272,10 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
               <p className="text-gray-500 mb-4">No cards in this pack yet.</p>
               <button
                 onClick={() => setIsGenerateDrawerOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 mx-auto"
+                className="flex items-center gap-2 px-4 py-2 bg-[var(--color-portugal-green)] text-white rounded-full hover:bg-[var(--color-portugal-green-dark)] mx-auto"
               >
                 <Plus size={16} />
-                Add Cards
+                Add cards
               </button>
             </div>
           )}
@@ -361,6 +290,102 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
         packTitle={pack.title}
         packDescription={pack.description}
       />
+
+      {/* Edit Pack Drawer */}
+      <Drawer open={editingPack} onOpenChange={(open) => !open && setEditingPack(false)} repositionInputs={false}>
+        <DrawerContent className="bg-foreground">
+          <div className="max-w-md w-full mx-auto overflow-auto p-4">
+            <div className="font-semibold text-lg mb-2">Edit pack</div>
+            <div className="text-sm text-gray-600 mb-6">
+              Update pack details and settings
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={packForm.title}
+                    onChange={(e) => setPackForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Emoji</label>
+                  <input
+                    type="text"
+                    value={packForm.emoji}
+                    onChange={(e) => setPackForm(prev => ({ ...prev, emoji: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    maxLength={2}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={packForm.description}
+                  onChange={(e) => setPackForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select
+                    value={packForm.category}
+                    onChange={(e) => setPackForm(prev => ({ ...prev, category: e.target.value as any }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  >
+                    <option value="basics">Basics</option>
+                    <option value="situations">Situations</option>
+                    <option value="grammar">Grammar</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                  <select
+                    value={packForm.difficulty}
+                    onChange={(e) => setPackForm(prev => ({ ...prev, difficulty: e.target.value as any }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Minutes</label>
+                  <input
+                    type="number"
+                    value={packForm.estimatedMinutes}
+                    onChange={(e) => setPackForm(prev => ({ ...prev, estimatedMinutes: parseInt(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    min="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleSavePack}
+                className="flex-1 py-3 px-4 bg-[var(--color-azulejos)] text-white rounded-lg font-medium hover:bg-[var(--color-azulejos-dark)]"
+              >
+                Save changes
+              </button>
+              <button
+                onClick={() => setEditingPack(false)}
+                className="flex-1 py-3 px-4 bg-[var(--color-limestone)] text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

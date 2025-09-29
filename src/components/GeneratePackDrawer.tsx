@@ -6,11 +6,6 @@ import { cn } from "@/lib/utils";
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerClose,
 } from "@/components/ui/drawer";
 
 interface GeneratePackDrawerProps {
@@ -66,18 +61,15 @@ export function GeneratePackDrawer({
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Drawer open={isOpen} onOpenChange={(open) => !open && handleClose()} repositionInputs={false}>
       <DrawerContent className="bg-foreground">
-        <div className="mx-auto w-full max-w-md">
-          <DrawerHeader>
-            <DrawerTitle>Generate Custom Pack</DrawerTitle>
-            <DrawerDescription>
-              Describe what you want to learn and AI will create a personalized Portuguese flashcard pack
-            </DrawerDescription>
-          </DrawerHeader>
-          
-          <div className="p-4 pb-0 max-h-[70vh] overflow-y-auto">
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="max-w-md w-full mx-auto overflow-auto p-4">
+          <div className="font-semibold text-lg mb-2">Generate Custom Pack</div>
+          <div className="text-sm text-gray-600 mb-6">
+            Describe what you want to learn and AI will create a personalized Portuguese flashcard pack
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="userPrompt" className="block text-sm font-medium mb-2 text-gray-700">
                   What do you want to learn?
@@ -106,7 +98,7 @@ export function GeneratePackDrawer({
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : result
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-green-600 text-white hover:bg-green-700 active:scale-[0.98]"
+                    : "bg-[var(--color-azulejos)] text-white hover:bg-[var(--color-azulejos-dark)] active:scale-[0.98]"
                 )}
               >
                 {isGenerating ? (
@@ -117,12 +109,12 @@ export function GeneratePackDrawer({
                 ) : result ? (
                   "Pack Request Submitted"
                 ) : (
-                  "🤖 Generate Flashcard Pack"
+                  "Generate flashcard pack"
                 )}
               </button>
-            </form>
+          </form>
 
-            {result && (
+          {result && (
               <div className={cn(
                 "mt-4 p-4 rounded-lg",
                 result.success ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
@@ -157,9 +149,9 @@ export function GeneratePackDrawer({
               <div className="mt-4 space-y-3">
                 <button
                   onClick={checkStatus}
-                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  className="w-full py-2 px-4 bg-[var(--color-azulejos)] text-white rounded-lg hover:bg-[var(--color-azulejos-dark)] transition-colors text-sm"
                 >
-                  🔄 Check Progress
+                  Check progress
                 </button>
 
                 {statusResult && (
@@ -191,18 +183,13 @@ export function GeneratePackDrawer({
                 )}
               </div>
             )}
-          </div>
 
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <button 
-                onClick={handleClose}
-                className="w-full py-3 text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                {result?.success ? "Continue Checking Later" : "Cancel"}
-              </button>
-            </DrawerClose>
-          </DrawerFooter>
+          <button
+            onClick={handleClose}
+            className="w-full py-3 mt-4 text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            {result?.success ? "Continue Checking Later" : "Cancel"}
+          </button>
         </div>
       </DrawerContent>
     </Drawer>

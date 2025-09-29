@@ -33,11 +33,11 @@ export function EmptyPackState({ onPackGenerated }: EmptyPackStateProps) {
         </p>
         
         {/* Primary CTA */}
-        <button 
+        <button
           onClick={() => setIsGenerateDrawerOpen(true)}
-          className="w-full py-4 px-6 bg-green-600 text-white rounded-2xl font-semibold text-lg shadow-lg hover:bg-green-700 transition-all duration-200 active:scale-95 mb-4"
+          className="w-full py-4 px-6 bg-[var(--color-azulejos)] text-white rounded-2xl font-semibold text-lg shadow-lg hover:bg-[var(--color-azulejos-dark)] transition-all duration-200 active:scale-95 mb-4"
         >
-          🤖 Generate Your First Pack
+          Generate your first pack
         </button>
         
         {/* Secondary information */}

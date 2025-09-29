@@ -17,16 +17,16 @@ export async function Home({ ctx }: RequestInfo) {
       <div className="flex-shrink-0 p-4 pt-8">
         <div className="max-w-md mx-auto text-center">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            Conversa
+            🇵🇹 Conversa 🇵🇹
           </h1>
           <p className="text-gray-600">
-            Learn the Portuguese (Portugal) you'll actually use
+            Learn the Portuguese you'll actually use
           </p>
         </div>
       </div>
 
       {/* Client-side app content */}
-      <div className="max-w-md mx-auto w-full">
+      <div className="flex-1 max-w-md mx-auto w-full pb-safe">
         {packs.length > 0 ? (
           <FlashcardAppClient
             packs={packs}

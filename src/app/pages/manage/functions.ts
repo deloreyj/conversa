@@ -132,3 +132,15 @@ export async function generateMoreCards(packId: string, count: number = 5, custo
     return false;
   }
 }
+
+export async function deleteFlashcardPack(packId: string): Promise<boolean> {
+  try {
+    await db.flashcardPack.delete({
+      where: { id: packId }
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to delete flashcard pack:", error);
+    return false;
+  }
+}

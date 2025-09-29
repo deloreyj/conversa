@@ -1,39 +1,77 @@
 @import "tailwindcss";
 
 @theme {
+  /* Portuguese Color Palette */
+  /* Portugal Flag Red: #E42518 */
+  --color-portugal-red: #E42518;
+  --color-portugal-red-dark: #C41E14;
+  --color-portugal-red-light: #FF4A3E;
+
+  /* Portugal Flag Green: #006847 */
+  --color-portugal-green: #006847;
+  --color-portugal-green-dark: #004d33;
+  --color-portugal-green-light: #008556;
+
+  /* Azulejos Blue: #3C5E95 */
+  --color-azulejos: #3C5E95;
+  --color-azulejos-dark: #2d4770;
+  --color-azulejos-light: #5081b6;
+
+  /* Lisbon Tram Yellow: #F4C430 (Golden yellow) */
+  --color-tram-yellow: #F4C430;
+  --color-tram-yellow-dark: #d4a610;
+  --color-tram-yellow-light: #ffd666;
+
+  /* Neutral Portuguese tones */
+  --color-limestone: #F5F1E8;
+  --color-terracotta: #D4704A;
+  --color-cork: #C8A882;
+
+  /* Base theme colors using Portuguese palette */
   --color-background: oklch(1 0 0);
   --color-foreground: oklch(0.145 0 0);
   --color-card: oklch(1 0 0);
   --color-card-foreground: oklch(0.145 0 0);
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.145 0 0);
-  --color-primary: oklch(0.205 0 0);
+
+  /* Primary = Azulejos Blue */
+  --color-primary: #3C5E95;
   --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: oklch(0.97 0 0);
-  --color-secondary-foreground: oklch(0.205 0 0);
+
+  /* Secondary = Portugal Green */
+  --color-secondary: #006847;
+  --color-secondary-foreground: oklch(0.985 0 0);
+
+  /* Accent = Tram Yellow */
+  --color-accent: #F4C430;
+  --color-accent-foreground: oklch(0.145 0 0);
+
+  /* Destructive = Portugal Red */
+  --color-destructive: #FF0000;
+  --color-destructive-foreground: oklch(0.985 0 0);
+
   --color-muted: oklch(0.97 0 0);
   --color-muted-foreground: oklch(0.556 0 0);
-  --color-accent: oklch(0.97 0 0);
-  --color-accent-foreground: oklch(0.205 0 0);
-  --color-destructive: oklch(0.577 0.245 27.325);
-  --color-destructive-foreground: oklch(0.577 0.245 27.325);
   --color-border: oklch(0.922 0 0);
   --color-input: oklch(0.922 0 0);
-  --color-ring: oklch(0.708 0 0);
-  --color-chart-1: oklch(0.646 0.222 41.116);
-  --color-chart-2: oklch(0.6 0.118 184.704);
-  --color-chart-3: oklch(0.398 0.07 227.392);
-  --color-chart-4: oklch(0.828 0.189 84.429);
-  --color-chart-5: oklch(0.769 0.188 70.08);
+  --color-ring: #3C5E95;
+
+  --color-chart-1: #3C5E95;
+  --color-chart-2: #006847;
+  --color-chart-3: #F4C430;
+  --color-chart-4: #D4704A;
+  --color-chart-5: #C8A882;
+
   --radius: 0.625rem;
   --color-sidebar: oklch(0.985 0 0);
   --color-sidebar-foreground: oklch(0.145 0 0);
-  --color-sidebar-primary: oklch(0.205 0 0);
+  --color-sidebar-primary: #3C5E95;
   --color-sidebar-primary-foreground: oklch(0.985 0 0);
   --color-sidebar-accent: oklch(0.97 0 0);
   --color-sidebar-accent-foreground: oklch(0.205 0 0);
   --color-sidebar-border: oklch(0.922 0 0);
-  --color-sidebar-ring: oklch(0.708 0 0);
+  --color-sidebar-ring: #3C5E95;
 }
 
 /* Dark mode */
