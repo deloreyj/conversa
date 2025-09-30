@@ -17,10 +17,10 @@ export async function Home({ ctx }: RequestInfo) {
       <div className="flex-shrink-0 p-4 pt-8">
         <div className="max-w-md mx-auto text-center">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            🇵🇹 Conversa 🇵🇹
+            🇵🇹 PortuPal 🇵🇹
           </h1>
           <p className="text-gray-600">
-            Learn the Portuguese you'll actually use
+            Learn the Portuguese you need when you need it
           </p>
         </div>
       </div>

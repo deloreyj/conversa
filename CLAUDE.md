@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Conversa is a Portuguese (Portugal) learning app built with the RedwoodSDK framework using React Server Components (RSC). It features flashcard-based language learning with swipeable cards and AI-powered pack generation using Cloudflare Workflows.
+PortuPal is a Portuguese (Portugal) learning app built with the RedwoodSDK framework using React Server Components (RSC). It features flashcard-based language learning with swipeable cards and AI-powered pack generation using Cloudflare Workflows.
 
 ## Key Development Commands
 

@@ -1,7 +1,7 @@
 # Agent Development Guide
 
 ## Application Context
-- **Conversa**: Portuguese (Portugal) language learning app focused on flashcards
+- **PortuPal**: Portuguese (Portugal) language learning app focused on flashcards
 - **Features**: Phrase packs by theme (animals, food, verbs) and situations (ordering food, uber, doctor)
 - **Audio**: Text-to-speech for pronunciation, future speech-to-text for practice
 - **Design**: Mobile-first, premium feel with smooth animations and clean UI interactions

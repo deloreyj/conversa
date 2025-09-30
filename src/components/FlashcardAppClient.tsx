@@ -100,18 +100,18 @@ export function FlashcardAppClient({
       <div className="p-4 pb-safe">
         <div className="max-w-md mx-auto flex gap-3">
             <button
+              onClick={() => setIsGenerateDrawerOpen(true)}
+              className="flex-1 py-3 px-6 bg-[var(--color-azulejos)] text-white rounded-2xl font-medium text-base shadow-lg hover:bg-[var(--color-azulejos-dark)] transition-colors active:scale-95"
+            >
+              Generate pack
+            </button>
+
+            <button
               onClick={() => setIsModalOpen(true)}
               className="flex-1 py-3 px-6 bg-[var(--color-limestone)] text-gray-900 border border-gray-300 rounded-2xl font-medium text-base shadow-lg hover:bg-gray-200 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isLoading}
             >
               Change pack
-            </button>
-
-            <button
-              onClick={() => setIsGenerateDrawerOpen(true)}
-              className="flex-1 py-3 px-6 bg-[var(--color-azulejos)] text-white rounded-2xl font-medium text-base shadow-lg hover:bg-[var(--color-azulejos-dark)] transition-colors active:scale-95"
-            >
-              Generate pack
             </button>
         </div>
       </div>
