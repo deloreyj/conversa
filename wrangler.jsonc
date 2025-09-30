@@ -1,53 +1,63 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "portupal",
-	"account_id": "ec027944a657240cd4fd5266eb6e62cc",
-	"main": "src/worker.tsx",
-	"compatibility_date": "2025-05-07",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"assets": {
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "SESSION_DURABLE_OBJECT",
-				"class_name": "SessionDurableObject"
-			}
-		]
-	},
-	"vars": {
-		"WEBAUTHN_APP_NAME": "conversa",
-		"AI_GATEWAY_ID": "conversa",
-	},
-	"migrations": [
-		{
-			"tag": "v1",
-			"new_sqlite_classes": [
-				"SessionDurableObject"
-			]
-		}
-	],
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "conversa",
-			"database_id": "bf32b909-98ed-4491-9920-188ce021821a"
-		}
-	],
-	"ai": {
-		"binding": "AI"
-	},
-	"workflows": [
-		{
-			"name": "flashcard-pack-generator",
-			"binding": "FLASHCARD_PACK_GENERATOR",
-			"class_name": "FlashcardPackGenerator"
-		}
-	]
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portupal",
+  "account_id": "ec027944a657240cd4fd5266eb6e62cc",
+  "main": "src/worker.tsx",
+  "compatibility_date": "2025-05-07",
+  "routes": [
+    {
+      "custom_domain": true,
+      "pattern": "portupal.com"
+    },
+    {
+      "custom_domain": true,
+      "pattern": "portupal.com"
+    }
+  ],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SESSION_DURABLE_OBJECT",
+        "class_name": "SessionDurableObject"
+      }
+    ]
+  },
+  "vars": {
+    "WEBAUTHN_APP_NAME": "portupal",
+    "AI_GATEWAY_ID": "portupal"
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "SessionDurableObject"
+      ]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "portupal",
+      "database_id": "c8cc4d9a-f47f-47dd-af79-38386b9efee7"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "workflows": [
+    {
+      "name": "flashcard-pack-generator",
+      "binding": "FLASHCARD_PACK_GENERATOR",
+      "class_name": "FlashcardPackGenerator"
+    }
+  ]
 }
