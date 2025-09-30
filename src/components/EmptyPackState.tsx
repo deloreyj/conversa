@@ -39,16 +39,6 @@ export function EmptyPackState({ onPackGenerated }: EmptyPackStateProps) {
         >
           Generate your first pack
         </button>
-        
-        {/* Secondary information */}
-        <div className="space-y-3 text-sm text-gray-500">
-          <p>
-            🎯 Popular topics: Food & Dining, Medical Phrases, Transportation
-          </p>
-          <p>
-            ⚡ Takes 30-60 seconds to generate
-          </p>
-        </div>
       </div>
 
       {/* Generate Pack Drawer */}

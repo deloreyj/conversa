@@ -11,7 +11,7 @@
     },
     {
       "custom_domain": true,
-      "pattern": "portupal.com"
+      "pattern": "www.portupal.com",
     }
   ],
   "compatibility_flags": [
