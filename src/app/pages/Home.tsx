@@ -3,12 +3,14 @@ import { FlashcardAppClient } from "@/components/FlashcardAppClient";
 import { EmptyPackState } from "@/components/EmptyPackState";
 import { getFlashcardPacksMetadata, getFlashcardPackById, fetchPackCards } from "@/app/pages/flashcard-functions";
 
-export async function Home({ ctx }: RequestInfo) {
+export async function Home({ ctx, request }: RequestInfo) {
   // Fetch all pack metadata
   const packs = await getFlashcardPacksMetadata();
-  
-  // Get the first pack as default, or fallback to empty
-  const initialPackId = packs.length > 0 ? packs[0].id : "";
+
+  // Get pack ID from URL query parameter or use first pack as default
+  const url = new URL(request.url);
+  const packIdFromUrl = url.searchParams.get("pack");
+  const initialPackId = packIdFromUrl || (packs.length > 0 ? packs[0].id : "");
   const initialCards = initialPackId ? await getFlashcardPackById(initialPackId) : [];
 
   return (
@@ -17,7 +19,7 @@ export async function Home({ ctx }: RequestInfo) {
       <div className="flex-shrink-0 p-4 pt-8">
         <div className="max-w-md mx-auto text-center">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            🇵🇹 PortuPal 🇵🇹
+            🥬 Alfacinha 🥬
           </h1>
           <p className="text-gray-600">
             Learn the Portuguese you need when you need it

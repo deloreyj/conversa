@@ -33,6 +33,15 @@ export function FlashcardAppClient({
     setIsMounted(true);
   }, []);
 
+  // Update URL when pack changes
+  useEffect(() => {
+    if (isMounted && currentPackId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("pack", currentPackId);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [currentPackId, isMounted]);
+
   const handlePackSelect = async (packId: string) => {
     if (packId === currentPackId) return;
     

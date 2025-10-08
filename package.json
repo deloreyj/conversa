@@ -1,7 +1,7 @@
 {
-  "name": "portupal",
+  "name": "alfacinha",
   "version": "1.0.0",
-  "description": "Build fast, server-driven webapps on Cloudflare with SSR, RSC, and realtime. ",
+  "description": "Alfacinha - Learn the Portuguese you need when you need it",
   "main": "index.js",
   "type": "module",
   "keywords": [],

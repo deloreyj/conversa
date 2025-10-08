@@ -69,7 +69,13 @@ export async function getFlashcardPackById(id: string): Promise<FlashcardData[] 
   }
 
   try {
-    return JSON.parse(pack.cards) as FlashcardData[];
+    const cards = JSON.parse(pack.cards) as FlashcardData[];
+    // Randomize card order using Fisher-Yates shuffle
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    return cards;
   } catch (error) {
     console.error("Failed to parse flashcard pack cards:", error);
     return null;

@@ -1,17 +1,17 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "portupal",
+  "name": "alfacinha",
   "account_id": "ec027944a657240cd4fd5266eb6e62cc",
   "main": "src/worker.tsx",
   "compatibility_date": "2025-05-07",
   "routes": [
     {
       "custom_domain": true,
-      "pattern": "portupal.com"
+      "pattern": "alfacinha.me"
     },
     {
       "custom_domain": true,
-      "pattern": "www.portupal.com",
+      "pattern": "www.alfacinha.me",
     }
   ],
   "compatibility_flags": [
@@ -32,8 +32,8 @@
     ]
   },
   "vars": {
-    "WEBAUTHN_APP_NAME": "portupal",
-    "AI_GATEWAY_ID": "portupal"
+    "WEBAUTHN_APP_NAME": "alfacinha",
+    "AI_GATEWAY_ID": "alfacinha"
   },
   "migrations": [
     {
@@ -46,8 +46,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "portupal",
-      "database_id": "c8cc4d9a-f47f-47dd-af79-38386b9efee7"
+      "database_name": "alfacinha`",
+      "database_id": "54dffbbb-35ac-4d7a-8360-8690564f873c"
     }
   ],
   "ai": {
