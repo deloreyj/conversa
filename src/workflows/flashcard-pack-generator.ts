@@ -320,43 +320,69 @@ Return only the enhanced prompt, nothing else.`
         ]
       };
 
-      console.log("🤖 Calling OpenAI via AI Gateway for prompt enhancement...");
-      const gateway = this.env.AI.gateway(this.env.AI_GATEWAY_ID);
-      const openaiUrl = await gateway.getUrl("openai");
-      
-      const response = await fetch(`${openaiUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'cf-aig-authorization': `Bearer ${this.env.AI_GATEWAY_TOKEN}`,
-        },
-        body: JSON.stringify({
+      try {
+        console.log("🤖 Calling OpenAI via AI Gateway for prompt enhancement...");
+        console.log("🔧 AI Gateway ID:", this.env.AI_GATEWAY_ID);
+        console.log("🔧 Has AI Gateway Token:", !!this.env.AI_GATEWAY_TOKEN);
+
+        const gateway = this.env.AI.gateway(this.env.AI_GATEWAY_ID);
+        const openaiUrl = await gateway.getUrl("openai");
+
+        console.log("🌐 OpenAI URL from gateway:", openaiUrl);
+        console.log("📨 Request body:", JSON.stringify({
           model: 'gpt-4o-mini',
           messages: promptEnhancementRequest.messages,
           temperature: 0.7,
-        }),
-      });
+        }));
 
-      if (!response.ok) {
-        console.error("❌ OpenAI API error:", response.status, response.statusText);
-        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        const response = await fetch(`${openaiUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'cf-aig-authorization': `Bearer ${this.env.AI_GATEWAY_TOKEN}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: promptEnhancementRequest.messages,
+            temperature: 0.7,
+          }),
+        });
+
+        console.log("📡 Response status:", response.status, response.statusText);
+        console.log("📡 Response headers:", JSON.stringify(Object.fromEntries(response.headers.entries())));
+
+        if (!response.ok) {
+          console.error("❌ OpenAI API error:", response.status, response.statusText);
+          const errorText = await response.text();
+          console.error("❌ Error response body:", errorText);
+          throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        }
+
+        const responseText = await response.text();
+        console.log("📄 Raw response body:", responseText);
+
+        const data = JSON.parse(responseText) as OpenAIResponse;
+
+        console.log("📋 AI response received:", {
+          hasResponse: !!data.choices?.[0]?.message?.content,
+          responseLength: data.choices?.[0]?.message?.content?.length || 0
+        });
+
+        if (!data.choices?.[0]?.message?.content) {
+          console.error("❌ No response from OpenAI for prompt enhancement");
+          throw new Error("Failed to enhance prompt - no response from OpenAI");
+        }
+
+        const enhanced = data.choices[0].message.content.trim();
+        console.log("✅ Enhanced prompt:", enhanced);
+        return enhanced;
+      } catch (error) {
+        console.error("❌ CAUGHT ERROR in prompt enhancement:", error);
+        console.error("❌ Error type:", error?.constructor?.name);
+        console.error("❌ Error message:", error instanceof Error ? error.message : String(error));
+        console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
+        throw error;
       }
-
-      const data = await response.json() as OpenAIResponse;
-      
-      console.log("📋 AI response received:", { 
-        hasResponse: !!data.choices?.[0]?.message?.content, 
-        responseLength: data.choices?.[0]?.message?.content?.length || 0 
-      });
-      
-      if (!data.choices?.[0]?.message?.content) {
-        console.error("❌ No response from OpenAI for prompt enhancement");
-        throw new Error("Failed to enhance prompt - no response from OpenAI");
-      }
-
-      const enhanced = data.choices[0].message.content.trim();
-      console.log("✅ Enhanced prompt:", enhanced);
-      return enhanced;
     });
 
     console.log("⚡ Starting Step 2: Generate flashcard pack");
@@ -440,39 +466,63 @@ The user's enhanced request: ${enhancedPrompt}`;
           console.log("🤖 Calling OpenAI via AI Gateway for flashcard pack generation...");
           console.log("📏 System prompt length:", systemPrompt.length);
           if (isRetry) console.log("🔧 Including validation feedback:", validationErrors);
-          
+          console.log("🔧 AI Gateway ID:", this.env.AI_GATEWAY_ID);
+          console.log("🔧 Has AI Gateway Token:", !!this.env.AI_GATEWAY_TOKEN);
+
           const gateway = this.env.AI.gateway(this.env.AI_GATEWAY_ID);
           const openaiUrl = await gateway.getUrl("openai");
-          
+
+          console.log("🌐 OpenAI URL from gateway:", openaiUrl);
+
+          const requestBody = {
+            model: 'gpt-4o',
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt
+              },
+              {
+                role: "user",
+                content: enhancedPrompt
+              }
+            ],
+            temperature: isRetry ? 0.05 : 0.1,
+            response_format: { type: "json_object" },
+          };
+
+          console.log("📨 Request body (without full prompts):", {
+            model: requestBody.model,
+            temperature: requestBody.temperature,
+            response_format: requestBody.response_format,
+            messageCount: requestBody.messages.length,
+            systemPromptLength: requestBody.messages[0].content.length,
+            userPromptLength: requestBody.messages[1].content.length
+          });
+
           const response = await fetch(`${openaiUrl}/chat/completions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'cf-aig-authorization': `Bearer ${this.env.AI_GATEWAY_TOKEN}`,
             },
-            body: JSON.stringify({
-              model: 'gpt-4o',
-              messages: [
-                {
-                  role: "system",
-                  content: systemPrompt
-                },
-                {
-                  role: "user",
-                  content: enhancedPrompt
-                }
-              ],
-              temperature: isRetry ? 0.05 : 0.1, // Lower temperature for retry
-              response_format: { type: "json_object" },
-            }),
+            body: JSON.stringify(requestBody),
           });
+
+          console.log("📡 Response status:", response.status, response.statusText);
+          console.log("📡 Response headers:", JSON.stringify(Object.fromEntries(response.headers.entries())));
 
           if (!response.ok) {
             console.error("❌ OpenAI API error:", response.status, response.statusText);
+            const errorText = await response.text();
+            console.error("❌ Error response body:", errorText);
             throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
           }
 
-          const data = await response.json() as OpenAIResponse;
+          const responseText = await response.text();
+          console.log("📄 Raw response body (first 500 chars):", responseText.substring(0, 500));
+          console.log("📏 Total response length:", responseText.length);
+
+          const data = JSON.parse(responseText) as OpenAIResponse;
 
           console.log("📋 AI generation response received:", { 
             hasResponse: !!data.choices?.[0]?.message?.content, 

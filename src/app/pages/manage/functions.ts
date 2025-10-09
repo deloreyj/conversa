@@ -142,10 +142,28 @@ export async function updateFlashcard(packId: string, cardId: string, updates: {
 }
 
 export async function generateMoreCards(packId: string, count: number = 5, customPrompt?: string): Promise<boolean> {
-  const pack = await getFlashcardPackWithCards(packId);
-  if (!pack) {
+  // Get pack by ID directly (not slug)
+  const packRecord = await db.flashcardPack.findFirst({
+    where: { id: packId }
+  });
+
+  if (!packRecord) {
     throw new Error("Pack not found");
   }
+
+  // Parse cards
+  let cards: FlashcardData[] = [];
+  try {
+    cards = JSON.parse(packRecord.cards) as FlashcardData[];
+  } catch (error) {
+    console.error("Failed to parse flashcard pack cards:", error);
+    cards = [];
+  }
+
+  const pack = {
+    ...packRecord,
+    cards
+  };
 
   try {
     // Create a workflow instance to generate more cards
