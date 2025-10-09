@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { env } from "cloudflare:workers";
-import type { RequestInfo } from "rwsdk/utils";
+import { requestInfo } from "rwsdk/worker";
 
 // Helper function to serialize workflow status safely
 function serializeWorkflowStatus(status: any) {
@@ -20,7 +20,8 @@ const GeneratePackRequestSchema = z.object({
   isPublic: z.string().optional(),
 });
 
-export async function generateFlashcardPack(formData: FormData, { ctx }: RequestInfo) {
+export async function generateFlashcardPack(formData: FormData) {
+  const { ctx } = requestInfo;
   const rawData = {
     userPrompt: formData.get('userPrompt') as string,
     isPublic: formData.get('isPublic') as string || "true",
