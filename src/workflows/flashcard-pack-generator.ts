@@ -43,7 +43,8 @@ const FlashcardPackSchema = z.object({
 // Workflow event parameters
 type FlashcardPackGenerationParams = {
   userPrompt?: string;
-  userId?: string; // Optional - defaults to "all"
+  userId?: string; // ID of user creating the pack
+  isPublic?: boolean; // Whether pack is public or private
   // For adding cards to existing pack
   packId?: string;
   additionalCards?: number;
@@ -64,12 +65,17 @@ export class FlashcardPackGenerator extends WorkflowEntrypoint<Env, FlashcardPac
 
     // Determine workflow mode in a step to ensure state persistence
     const workflowMode = await step.do("determine workflow mode", async () => {
-      const { userPrompt, packId, additionalCards, existingCards, packDetails } = event.payload;
+      const { userPrompt, packId, additionalCards, existingCards, packDetails, userId, isPublic } = event.payload;
 
       if (packId && additionalCards && existingCards && packDetails) {
         return { mode: "additional", packId, existingCards, packDetails, customPrompt: event.payload.customPrompt };
       } else if (userPrompt) {
-        return { mode: "new", userPrompt, userId: event.payload.userId || "all" };
+        return {
+          mode: "new",
+          userPrompt,
+          userId: userId || "system",
+          isPublic: isPublic !== undefined ? isPublic : true
+        };
       } else {
         throw new Error("Either userPrompt or packId with additional card parameters must be provided");
       }
@@ -84,7 +90,7 @@ export class FlashcardPackGenerator extends WorkflowEntrypoint<Env, FlashcardPac
         workflowMode.customPrompt
       );
     } else {
-      return await this.generateNewPack(step, workflowMode.userPrompt, workflowMode.userId);
+      return await this.generateNewPack(step, workflowMode.userPrompt, workflowMode.userId, workflowMode.isPublic);
     }
   }
 
@@ -286,7 +292,7 @@ Return format:
     };
   }
 
-  private async generateNewPack(step: WorkflowStep, userPrompt: string, userId: string) {
+  private async generateNewPack(step: WorkflowStep, userPrompt: string, userId: string, isPublic: boolean = true) {
     // Step 1: Enhance the user prompt for better LLM understanding
     console.log("⚡ Starting Step 1: Enhance user prompt");
     const enhancedPrompt = await step.do("enhance user prompt", async () => {
@@ -591,7 +597,24 @@ The user's enhanced request: ${enhancedPrompt}`;
         await db.$queryRaw`SELECT 1`;
         console.log("✅ Database connection initialized");
 
+        const slug = generatedPack.title
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/ã/g, 'a')
+          .replace(/á/g, 'a')
+          .replace(/à/g, 'a')
+          .replace(/â/g, 'a')
+          .replace(/õ/g, 'o')
+          .replace(/ó/g, 'o')
+          .replace(/ô/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/é/g, 'e')
+          .replace(/ê/g, 'e')
+          .replace(/[^a-z0-9-]/g, '');
+
         const packData = {
+          slug,
           title: generatedPack.title,
           description: generatedPack.description,
           emoji: generatedPack.emoji,
@@ -600,12 +623,14 @@ The user's enhanced request: ${enhancedPrompt}`;
           estimatedMinutes: generatedPack.estimatedMinutes,
           cards: JSON.stringify(generatedPack.cards),
           userId: userId,
+          isPublic: isPublic,
         };
 
         console.log("📤 Inserting pack data into database:", {
           title: packData.title,
           cardCount: generatedPack.cards.length,
           userId: packData.userId,
+          isPublic: packData.isPublic,
           category: packData.category,
           difficulty: packData.difficulty
         });

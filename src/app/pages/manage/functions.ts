@@ -7,12 +7,42 @@ import { FlashcardData } from "@/hooks/useFlashcardDeck";
 import { FlashcardPackMetadata, FlashcardPackWithCards } from "@/app/pages/flashcard-functions";
 import { env } from "cloudflare:workers";
 
-export async function getFlashcardPackWithCards(id: string): Promise<FlashcardPackWithCards | null> {
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/ã/g, 'a')
+    .replace(/á/g, 'a')
+    .replace(/à/g, 'a')
+    .replace(/â/g, 'a')
+    .replace(/õ/g, 'o')
+    .replace(/ó/g, 'o')
+    .replace(/ô/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/é/g, 'e')
+    .replace(/ê/g, 'e')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+export async function getFlashcardPackWithCards(slug: string): Promise<FlashcardPackWithCards | null> {
+  // Get current user from context
+  const { ctx } = requestInfo;
+  const currentUserId = ctx.user?.id;
+
+  // Build where clause: show public packs OR user's own packs
+  const whereClause = currentUserId
+    ? {
+        slug,
+        OR: [
+          { isPublic: true },
+          { userId: currentUserId }
+        ]
+      }
+    : { slug, isPublic: true };
+
   const pack = await db.flashcardPack.findFirst({
-    where: {
-      id,
-      userId: "all" // For now, only work with global packs
-    }
+    where: whereClause
   });
 
   if (!pack) {
@@ -43,6 +73,7 @@ export async function updateFlashcardPack(packId: string, updates: {
   difficulty?: "beginner" | "intermediate" | "advanced";
   estimatedMinutes?: number;
   cards?: FlashcardData[];
+  isPublic?: boolean;
 }): Promise<boolean> {
   // Check if pack exists
   const existingPack = await db.flashcardPack.findFirst({
@@ -53,11 +84,19 @@ export async function updateFlashcardPack(packId: string, updates: {
     throw new Error("Pack not found");
   }
 
+  // Get current user from context
+  const { ctx } = requestInfo;
+
   const updateData: any = { ...updates };
 
   // Convert cards array to JSON string if provided
   if (updates.cards) {
     updateData.cards = JSON.stringify(updates.cards);
+  }
+
+  // Handle isPublic update - keep userId as the creator
+  if (updates.isPublic !== undefined) {
+    updateData.isPublic = updates.isPublic;
   }
 
   try {

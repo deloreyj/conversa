@@ -3,11 +3,11 @@ import { getFlashcardPackWithCards } from "./functions";
 import { PackManagementClient } from "@/components/PackManagementClient";
 
 interface PackManagementProps {
-  packId: string;
+  slug: string;
 }
 
-export async function PackManagement({ packId, ctx }: PackManagementProps & RequestInfo) {
-  const pack = await getFlashcardPackWithCards(packId);
+export async function PackManagement({ slug, ctx }: PackManagementProps & RequestInfo) {
+  const pack = await getFlashcardPackWithCards(slug);
 
   if (!pack) {
     return (

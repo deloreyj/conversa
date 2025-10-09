@@ -36,10 +36,27 @@ export default defineScript(async ({ env }) => {
   // Migrate existing flashcard packs to D1
   for (const pack of flashcardPacks) {
     console.log(`🃏 Seeding pack: ${pack.title}`);
-    
+
+    const slug = pack.title
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/ã/g, 'a')
+      .replace(/á/g, 'a')
+      .replace(/à/g, 'a')
+      .replace(/â/g, 'a')
+      .replace(/õ/g, 'o')
+      .replace(/ó/g, 'o')
+      .replace(/ô/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/é/g, 'e')
+      .replace(/ê/g, 'e')
+      .replace(/[^a-z0-9-]/g, '');
+
     await db.flashcardPack.create({
       data: {
         id: pack.id,
+        slug,
         title: pack.title,
         description: pack.description,
         emoji: pack.emoji,

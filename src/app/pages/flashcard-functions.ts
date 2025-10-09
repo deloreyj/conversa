@@ -2,11 +2,11 @@
 
 import { db } from "@/db";
 import { requestInfo } from "rwsdk/worker";
-import { sessions } from "@/session/store";
 import { FlashcardData } from "@/hooks/useFlashcardDeck";
 
 export interface FlashcardPackMetadata {
   id: string;
+  slug: string;
   title: string;
   description: string;
   emoji: string;
@@ -14,6 +14,7 @@ export interface FlashcardPackMetadata {
   difficulty: "beginner" | "intermediate" | "advanced";
   estimatedMinutes: number;
   userId: string;
+  isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,12 +24,25 @@ export interface FlashcardPackWithCards extends FlashcardPackMetadata {
 }
 
 export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata[]> {
+  // Get current user from context
+  const { ctx } = requestInfo;
+  const currentUserId = ctx.user?.id;
+
+  // Build where clause: show public packs OR user's own packs
+  const whereClause = currentUserId
+    ? {
+        OR: [
+          { isPublic: true },
+          { userId: currentUserId }
+        ]
+      }
+    : { isPublic: true };
+
   const packs = await db.flashcardPack.findMany({
-    where: {
-      userId: "all" // For now, only show global packs
-    },
+    where: whereClause,
     select: {
       id: true,
+      slug: true,
       title: true,
       description: true,
       emoji: true,
@@ -36,11 +50,12 @@ export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata
       difficulty: true,
       estimatedMinutes: true,
       userId: true,
+      isPublic: true,
       createdAt: true,
       updatedAt: true,
     },
     orderBy: [
-      { userId: "asc" }, // Show "all" packs first
+      { isPublic: "desc" }, // Show public packs first
       { category: "asc" },
       { difficulty: "asc" }
     ]
@@ -54,11 +69,23 @@ export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata
 }
 
 export async function getFlashcardPackById(id: string): Promise<FlashcardData[] | null> {
+  // Get current user from context
+  const { ctx } = requestInfo;
+  const currentUserId = ctx.user?.id;
+
+  // Build where clause: show public packs OR user's own packs
+  const whereClause = currentUserId
+    ? {
+        id,
+        OR: [
+          { isPublic: true },
+          { userId: currentUserId }
+        ]
+      }
+    : { id, isPublic: true };
+
   const pack = await db.flashcardPack.findFirst({
-    where: {
-      id,
-      userId: "all" // For now, only show global packs
-    },
+    where: whereClause,
     select: {
       cards: true
     }

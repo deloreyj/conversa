@@ -6,6 +6,7 @@ import { FlashcardData } from "@/hooks/useFlashcardDeck";
 import { updateFlashcardPack, deleteFlashcard, updateFlashcard, generateMoreCards, deleteFlashcardPack } from "@/app/pages/manage/functions";
 import { Trash2, Edit3, Plus, Save, X, Wand2 } from "lucide-react";
 import { GenerateMoreCardsDrawer } from "./GenerateMoreCardsDrawer";
+import { Switch } from "./Switch";
 import {
   Drawer,
   DrawerContent,
@@ -31,7 +32,8 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
     emoji: pack.emoji,
     category: pack.category,
     difficulty: pack.difficulty,
-    estimatedMinutes: pack.estimatedMinutes
+    estimatedMinutes: pack.estimatedMinutes,
+    isPublic: pack.isPublic
   });
 
   const handleDeleteCard = async (cardId: string) => {
@@ -88,7 +90,10 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
     try {
       const success = await updateFlashcardPack(pack.id, packForm);
       if (success) {
-        setPack(prev => ({ ...prev, ...packForm }));
+        setPack(prev => ({
+          ...prev,
+          ...packForm
+        }));
         setEditingPack(false);
       } else {
         alert("Failed to save pack details");
@@ -365,6 +370,23 @@ export function PackManagementClient({ pack: initialPack }: PackManagementClient
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
                     min="1"
                   />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-700">Visibility</div>
+                  <div className="text-xs text-gray-500">
+                    {packForm.isPublic ? "Everyone can see this pack" : "Only you can see this pack"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Private</span>
+                  <Switch
+                    checked={packForm.isPublic}
+                    onChange={(checked) => setPackForm(prev => ({ ...prev, isPublic: checked }))}
+                  />
+                  <span className="text-sm text-gray-600">Public</span>
                 </div>
               </div>
             </div>

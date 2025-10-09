@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { env } from "cloudflare:workers";
+import type { RequestInfo } from "rwsdk/utils";
 
 // Helper function to serialize workflow status safely
 function serializeWorkflowStatus(status: any) {
@@ -16,13 +17,13 @@ function serializeWorkflowStatus(status: any) {
 // Request schema for pack generation
 const GeneratePackRequestSchema = z.object({
   userPrompt: z.string().min(1).max(1000),
-  userId: z.string().optional(),
+  isPublic: z.string().optional(),
 });
 
-export async function generateFlashcardPack(formData: FormData) {
+export async function generateFlashcardPack(formData: FormData, { ctx }: RequestInfo) {
   const rawData = {
     userPrompt: formData.get('userPrompt') as string,
-    userId: formData.get('userId') as string || undefined,
+    isPublic: formData.get('isPublic') as string || "true",
   };
 
   // Validate the request
@@ -35,7 +36,11 @@ export async function generateFlashcardPack(formData: FormData) {
     };
   }
 
-  const { userPrompt, userId } = validationResult.data;
+  const { userPrompt, isPublic } = validationResult.data;
+
+  // Get userId from current user, or use "system" for non-authenticated users
+  const userId = ctx.user?.id || "system";
+  const isPublicBool = isPublic === "true";
 
   try {
     // Create a workflow instance
@@ -43,12 +48,13 @@ export async function generateFlashcardPack(formData: FormData) {
       id: crypto.randomUUID(),
       params: {
         userPrompt,
-        userId: userId || "all",
+        userId,
+        isPublic: isPublicBool,
       },
     });
 
     const status = await workflowInstance.status();
-    
+
     return {
       success: true,
       workflowId: workflowInstance.id,

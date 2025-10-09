@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { generateFlashcardPack, getWorkflowStatus } from "@/app/pages/generate-pack/functions";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/Switch";
 import {
   Drawer,
   DrawerContent,
@@ -14,25 +15,26 @@ interface GeneratePackDrawerProps {
   onPackGenerated?: (packId: string) => void;
 }
 
-export function GeneratePackDrawer({ 
-  isOpen, 
+export function GeneratePackDrawer({
+  isOpen,
   onClose,
-  onPackGenerated 
+  onPackGenerated
 }: GeneratePackDrawerProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [statusResult, setStatusResult] = useState<any>(null);
   const [workflowId, setWorkflowId] = useState<string>("");
+  const [isPublic, setIsPublic] = useState(true);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsGenerating(true);
     setResult(null);
     setStatusResult(null);
-    
+
     const formData = new FormData(event.currentTarget);
     const result = await generateFlashcardPack(formData);
-    
+
     setResult(result);
     if (result.success) {
       setWorkflowId(result.workflowId);
@@ -88,6 +90,24 @@ export function GeneratePackDrawer({
                   disabled={isGenerating}
                 />
               </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-700">Visibility</div>
+                  <div className="text-xs text-gray-500">
+                    {isPublic ? "Everyone can see this pack" : "Only you can see this pack"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Private</span>
+                  <Switch
+                    checked={isPublic}
+                    onChange={setIsPublic}
+                  />
+                  <span className="text-sm text-gray-600">Public</span>
+                </div>
+              </div>
+              <input type="hidden" name="isPublic" value={isPublic ? "true" : "false"} />
 
               <button
                 type="submit"

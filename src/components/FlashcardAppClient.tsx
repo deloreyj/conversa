@@ -10,24 +10,26 @@ import { FlashcardData } from "@/hooks/useFlashcardDeck";
 interface FlashcardAppClientProps {
   packs: FlashcardPackMetadata[];
   initialCards: FlashcardData[];
-  initialPackId: string;
+  initialPackSlug: string;
   onPackSelect: (packId: string) => Promise<FlashcardData[] | null>;
+  currentUserId?: string;
 }
 
-export function FlashcardAppClient({ 
-  packs, 
-  initialCards, 
-  initialPackId, 
-  onPackSelect 
+export function FlashcardAppClient({
+  packs,
+  initialCards,
+  initialPackSlug,
+  onPackSelect,
+  currentUserId
 }: FlashcardAppClientProps) {
-  const [currentPackId, setCurrentPackId] = useState(initialPackId);
+  const [currentPackSlug, setCurrentPackSlug] = useState(initialPackSlug);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerateDrawerOpen, setIsGenerateDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [cards, setCards] = useState<FlashcardData[]>(initialCards);
   const [isLoading, setIsLoading] = useState(false);
 
-  const currentPack = packs.find(pack => pack.id === currentPackId);
+  const currentPack = packs.find(pack => pack.slug === currentPackSlug);
 
   useEffect(() => {
     setIsMounted(true);
@@ -35,21 +37,22 @@ export function FlashcardAppClient({
 
   // Update URL when pack changes
   useEffect(() => {
-    if (isMounted && currentPackId) {
+    if (isMounted && currentPackSlug) {
       const url = new URL(window.location.href);
-      url.searchParams.set("pack", currentPackId);
+      url.searchParams.set("pack", currentPackSlug);
       window.history.replaceState({}, "", url.toString());
     }
-  }, [currentPackId, isMounted]);
+  }, [currentPackSlug, isMounted]);
 
   const handlePackSelect = async (packId: string) => {
-    if (packId === currentPackId) return;
-    
+    const selectedPack = packs.find(p => p.id === packId);
+    if (!selectedPack || selectedPack.slug === currentPackSlug) return;
+
     setIsLoading(true);
     try {
       const newCards = await onPackSelect(packId);
       if (newCards) {
-        setCurrentPackId(packId);
+        setCurrentPackSlug(selectedPack.slug);
         setCards(newCards);
       }
     } catch (error) {
@@ -83,20 +86,22 @@ export function FlashcardAppClient({
               <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
             )}
             </div>
-            <div>
-              <a
-                href={`/manage/${currentPackId}`}
-              >
-                ⚙️
-              </a>
-            </div>
+            {currentUserId && currentPack.userId === currentUserId && (
+              <div>
+                <a
+                  href={`/manage/${currentPack.slug}`}
+                >
+                  ⚙️
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Flashcard area */}
       <div className="px-4 py-4">
-        <FlashcardDeck key={currentPackId} cards={cards} />
+        <FlashcardDeck key={currentPackSlug} cards={cards} />
 
         <div className="text-center mt-8 space-y-2">
           <p className="text-sm text-gray-500">
@@ -128,7 +133,7 @@ export function FlashcardAppClient({
       {/* Pack Selection Modal */}
       <PackModal
         packs={packs}
-        currentPackId={currentPackId}
+        currentPackId={currentPack?.id || ""}
         onPackSelect={handlePackSelect}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
