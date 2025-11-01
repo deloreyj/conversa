@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { FlashcardPackMetadata } from "@/app/pages/flashcard-functions";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +19,7 @@ interface PackModalProps {
   onPackSelect: (packId: string) => void | Promise<void>;
   isOpen: boolean;
   onClose: () => void;
+  currentUserId?: string;
 }
 
 export function PackModal({ 
@@ -25,8 +27,11 @@ export function PackModal({
   currentPackId, 
   onPackSelect, 
   isOpen, 
-  onClose 
+  onClose,
+  currentUserId
 }: PackModalProps) {
+  const [filter, setFilter] = useState<'all' | 'mine'>('all');
+
   const getDifficultyColor = (difficulty: FlashcardPackMetadata['difficulty']) => {
     switch (difficulty) {
       case 'beginner': return 'text-[var(--color-portugal-green)] bg-green-50';
@@ -40,20 +45,46 @@ export function PackModal({
     onClose();
   };
 
+  const filteredPacks = filter === 'mine' 
+    ? packs.filter(pack => pack.userId === currentUserId)
+    : packs;
+
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="bg-foreground">
         <div className="mx-auto w-full max-w-md">
-          <DrawerHeader>
-            <DrawerTitle>Choose Your Pack</DrawerTitle>
-            <DrawerDescription>
-              Select a flashcard pack to start practicing Portuguese
-            </DrawerDescription>
-          </DrawerHeader>
-          
-          <div className="p-4 pb-0 max-h-[60vh] overflow-y-auto">
+          <div className="p-4">
+            {currentUserId && (
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setFilter('all')}
+                  className={cn(
+                    "flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-colors",
+                    filter === 'all'
+                      ? "bg-[var(--color-azulejos)] text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  All Packs
+                </button>
+                <button
+                  onClick={() => setFilter('mine')}
+                  className={cn(
+                    "flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-colors",
+                    filter === 'mine'
+                      ? "bg-[var(--color-azulejos)] text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  )}
+                >
+                  My Packs
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="px-4 pb-0 max-h-[60vh] overflow-y-auto">
             <div className="space-y-3">
-              {packs.map((pack) => {
+              {filteredPacks.map((pack) => {
                 const isSelected = pack.id === currentPackId;
                 
                 return (

@@ -137,6 +137,7 @@ export function FlashcardAppClient({
         onPackSelect={handlePackSelect}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        currentUserId={currentUserId}
       />
 
       {/* Generate Pack Drawer */}
