@@ -12,4 +12,5 @@ export const createAuth = () =>
     emailAndPassword: {
       enabled: true,
     },
+    trustedOrigins: ["http://localhost:*", env.BETTER_AUTH_URL],
   });
