@@ -55,17 +55,29 @@ export async function getFlashcardPacksMetadata(): Promise<FlashcardPackMetadata
       updatedAt: true,
     },
     orderBy: [
-      { isPublic: "desc" }, // Show public packs first
-      { category: "asc" },
-      { difficulty: "asc" }
+      { createdAt: "desc" } // Most recently created first
     ]
   });
 
-  return packs.map(pack => ({
-    ...pack,
-    category: pack.category as "basics" | "situations" | "grammar",
-    difficulty: pack.difficulty as "beginner" | "intermediate" | "advanced"
-  }));
+  // Sort by difficulty order (beginner -> intermediate -> advanced), then by most recent
+  const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
+  
+  return packs
+    .map(pack => ({
+      ...pack,
+      category: pack.category as "basics" | "situations" | "grammar",
+      difficulty: pack.difficulty as "beginner" | "intermediate" | "advanced"
+    }))
+    .sort((a, b) => {
+      // First sort by difficulty
+      const diffA = difficultyOrder[a.difficulty];
+      const diffB = difficultyOrder[b.difficulty];
+      if (diffA !== diffB) {
+        return diffA - diffB;
+      }
+      // Then by most recent (descending)
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 }
 
 export async function getFlashcardPackById(id: string): Promise<FlashcardData[] | null> {
